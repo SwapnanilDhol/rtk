@@ -798,12 +798,22 @@ pub const RULES: &[RtkRule] = &[
         subcmd_status: &[],
     },
     RtkRule {
-        pattern: r"^xcodebuild\b",
+        // Optional first-token action so `xcodebuild test` picks up subcmd_savings.
+        pattern: r"^xcodebuild(?:\s+(test|build|clean|analyze|archive)\b)?",
         rtk_cmd: "rtk xcodebuild",
         rewrite_prefixes: &["xcodebuild"],
         category: "Build",
         savings_pct: 85.0,
-        subcmd_savings: &[("test", 92.0)],
+        subcmd_savings: &[("test", 92.0), ("build", 88.0)],
+        subcmd_status: &[],
+    },
+    RtkRule {
+        pattern: r"^xcrun\s+simctl\b",
+        rtk_cmd: "rtk xcrun",
+        rewrite_prefixes: &["xcrun"],
+        category: "Build",
+        savings_pct: 72.0,
+        subcmd_savings: &[],
         subcmd_status: &[],
     },
     RtkRule {

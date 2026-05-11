@@ -1603,6 +1603,7 @@ match_command = "^make\\b"
             "trunk-build",
             "uv-sync",
             "xcodebuild",
+            "xcrun-simctl",
             "yamllint",
         ];
 
@@ -1622,8 +1623,8 @@ match_command = "^make\\b"
         let filters = make_filters(BUILTIN_TOML);
         assert_eq!(
             filters.len(),
-            59,
-            "Expected exactly 59 built-in filters, got {}. \
+            60,
+            "Expected exactly 60 built-in filters, got {}. \
              Update this count when adding/removing filters in src/filters/.",
             filters.len()
         );

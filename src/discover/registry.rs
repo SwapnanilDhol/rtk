@@ -2075,6 +2075,32 @@ mod tests {
     }
 
     #[test]
+    fn test_classify_xcodebuild_test_uses_test_savings() {
+        assert!(matches!(
+            classify_command("xcodebuild test -project App.xcodeproj -scheme App"),
+            Classification::Supported {
+                rtk_equivalent: "rtk xcodebuild",
+                category: "Build",
+                estimated_savings_pct: 92.0,
+                status: RtkStatus::Existing,
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_xcrun_simctl() {
+        assert!(matches!(
+            classify_command("xcrun simctl list devices available"),
+            Classification::Supported {
+                rtk_equivalent: "rtk xcrun",
+                category: "Build",
+                estimated_savings_pct: 72.0,
+                status: RtkStatus::Existing,
+            }
+        ));
+    }
+
+    #[test]
     fn test_rewrite_swift_test() {
         assert_eq!(
             rewrite_command_no_prefixes("swift test --parallel", &[]),
@@ -2093,6 +2119,28 @@ mod tests {
                 "rtk xcodebuild -project PassMaker.xcodeproj -scheme PassMaker -sdk iphonesimulator build"
                     .into(),
             )
+        );
+    }
+
+    #[test]
+    fn test_rewrite_xcodebuild_test() {
+        assert_eq!(
+            rewrite_command_no_prefixes(
+                "xcodebuild test -project App.xcodeproj -scheme App -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:AppTests/LoginTests",
+                &[],
+            ),
+            Some(
+                "rtk xcodebuild test -project App.xcodeproj -scheme App -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:AppTests/LoginTests"
+                    .into(),
+            )
+        );
+    }
+
+    #[test]
+    fn test_rewrite_xcrun_simctl_list() {
+        assert_eq!(
+            rewrite_command_no_prefixes("xcrun simctl list devices available", &[]),
+            Some("rtk xcrun simctl list devices available".into())
         );
     }
 

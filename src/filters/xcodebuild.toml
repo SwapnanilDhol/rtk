@@ -127,6 +127,17 @@ Executed 2 tests, with 1 failure in 0.003 seconds
 expected = "Test Suite 'All tests' started at 2026-03-10 12:00:00\nTest Suite 'AppTests' started at 2026-03-10 12:00:00\nTest Case '-[AppTests testExample]' passed (0.001 seconds).\nTest Case '-[AppTests testFailing]' failed (0.002 seconds).\nTest Suite 'AppTests' passed at 2026-03-10 12:00:01\nExecuted 2 tests, with 1 failure in 0.003 seconds"
 
 [[tests.xcodebuild]]
+name = "xcodebuild test keeps runner summary without compile noise"
+input = """
+note: Using new build system
+Testing started on 2026-05-11 at 12:00:00.000
+Test Suite 'PassMakerTests' started at 2026-05-11 12:00:00.001
+Test Case '-[PassMakerTests test_onboarding]' passed (0.012 seconds).
+Executed 1 test, with 0 failures (0 unexpected) in 0.015 (0.015) seconds
+"""
+expected = "Testing started on 2026-05-11 at 12:00:00.000\nTest Suite 'PassMakerTests' started at 2026-05-11 12:00:00.001\nTest Case '-[PassMakerTests test_onboarding]' passed (0.012 seconds).\nExecuted 1 test, with 0 failures (0 unexpected) in 0.015 (0.015) seconds"
+
+[[tests.xcodebuild]]
 name = "spm graph and swiftdriver noise stripped, diagnostics kept"
 input = """
 Command line invocation:
