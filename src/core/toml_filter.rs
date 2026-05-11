@@ -1602,6 +1602,7 @@ match_command = "^make\\b"
             "tofu-validate",
             "trunk-build",
             "uv-sync",
+            "xcodebuild",
             "yamllint",
         ];
 

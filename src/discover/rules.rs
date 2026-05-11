@@ -798,6 +798,15 @@ pub const RULES: &[RtkRule] = &[
         subcmd_status: &[],
     },
     RtkRule {
+        pattern: r"^xcodebuild\b",
+        rtk_cmd: "rtk xcodebuild",
+        rewrite_prefixes: &["xcodebuild"],
+        category: "Build",
+        savings_pct: 85.0,
+        subcmd_savings: &[("test", 92.0)],
+        subcmd_status: &[],
+    },
+    RtkRule {
         pattern: r"^systemctl\s+status\b",
         rtk_cmd: "rtk systemctl",
         rewrite_prefixes: &["systemctl"],

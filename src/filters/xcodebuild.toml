@@ -4,8 +4,30 @@ match_command = "^xcodebuild\\b"
 strip_ansi = true
 strip_lines_matching = [
   "^\\s*$",
+  "^Command line invocation:",
+  "^Build settings from command line:",
+  "^    SDKROOT\\s*=",
+  "^Resolve Package Graph$",
+  "^Resolved source packages:$",
+  "^  [A-Za-z0-9_.-]+:\\s+https?://",
+  "^Compute",
+  "^Prepare packages$",
+  "^CreateBuildRequest$",
+  "^SendProjectDescription$",
+  "^CreateBuildOperation$",
+  "^GatherProvisioningInputs",
+  "^ExecuteExternalTool",
+  "^note: Using new build system",
+  "^note: Building targets",
+  "^note: Target dependency graph",
+  "^    Target '",
+  "^        \\u279C\\s",
+  "^    \\(no dependencies\\)$",
   "^CompileC\\s",
   "^CompileSwift\\s",
+  "^SwiftDriver\\s",
+  "^SwiftEmitModule\\s",
+  "^SwiftCompile\\s",
   "^Ld\\s",
   "^CreateBuildDirectory\\s",
   "^MkDir\\s",
@@ -15,12 +37,16 @@ strip_lines_matching = [
   "^Signing Identity:",
   "^RegisterWithLaunchServices",
   "^Validate\\s",
-  "^ProcessProductPackaging",
+  "^ProcessProductPackaging\\s",
+  "^ProcessProductPackagingDER\\s",
   "^Touch\\s",
   "^LinkStoryboards",
   "^CompileStoryboard",
   "^CompileAssetCatalog",
+  "^CompileXCStrings\\s",
   "^GenerateDSYMFile",
+  "^GenerateAssetSymbols\\s",
+  "^ExtractAppIntentsMetadata\\s",
   "^PhaseScriptExecution",
   "^PBXCp\\s",
   "^SetMode\\s",
@@ -28,14 +54,21 @@ strip_lines_matching = [
   "^Ditto\\s",
   "^CpResource\\s",
   "^CpHeader\\s",
+  "^Copy\\s",
+  "^CopyStringsFile\\s",
+  "^\\s+Entitlements:\\s*$",
   "^\\s+cd\\s+/",
   "^\\s+export\\s",
   "^\\s+/Applications/Xcode",
   "^\\s+/usr/bin/",
   "^\\s+builtin-",
-  "^note: Using new build system",
 ]
-max_lines = 60
+# After line-stripping, keep a short prefix (command context) and a long tail
+# (Swift diagnostics, XCTest results, ** BUILD ** lines) so max_lines alone
+# cannot cut off trailing errors on large logs.
+head_lines = 14
+tail_lines = 90
+max_lines = 120
 on_empty = "xcodebuild: ok"
 
 [[tests.xcodebuild]]
@@ -92,6 +125,33 @@ Test Suite 'AppTests' passed at 2026-03-10 12:00:01
 Executed 2 tests, with 1 failure in 0.003 seconds
 """
 expected = "Test Suite 'All tests' started at 2026-03-10 12:00:00\nTest Suite 'AppTests' started at 2026-03-10 12:00:00\nTest Case '-[AppTests testExample]' passed (0.001 seconds).\nTest Case '-[AppTests testFailing]' failed (0.002 seconds).\nTest Suite 'AppTests' passed at 2026-03-10 12:00:01\nExecuted 2 tests, with 1 failure in 0.003 seconds"
+
+[[tests.xcodebuild]]
+name = "spm graph and swiftdriver noise stripped, diagnostics kept"
+input = """
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme App build
+
+Resolve Package Graph
+
+Resolved source packages:
+  FooKit: https://github.com/example/FooKit @ 1.0.0
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (2 targets)
+    Target 'App' in project 'App'
+        \u279C Explicit dependency on target 'Foo' in project 'Foo'
+
+SwiftDriver App normal arm64 com.apple.xcode.tools.swift.compiler (in target 'App' from project 'App')
+    cd /Users/dev/App
+    builtin-SwiftDriver -- /toolchain/usr/bin/swiftc -c
+
+/Users/dev/App/Broken.swift:9:3: error: cannot find 'missing' in scope
+
+** BUILD FAILED **
+"""
+expected = "/Users/dev/App/Broken.swift:9:3: error: cannot find 'missing' in scope\n** BUILD FAILED **"
 
 [[tests.xcodebuild]]
 name = "empty input returns on_empty message"

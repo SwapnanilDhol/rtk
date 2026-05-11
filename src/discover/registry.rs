@@ -2082,6 +2082,20 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_rewrite_xcodebuild_project_scheme() {
+        assert_eq!(
+            rewrite_command_no_prefixes(
+                "xcodebuild -project PassMaker.xcodeproj -scheme PassMaker -sdk iphonesimulator build",
+                &[],
+            ),
+            Some(
+                "rtk xcodebuild -project PassMaker.xcodeproj -scheme PassMaker -sdk iphonesimulator build"
+                    .into(),
+            )
+        );
+    }
+
     // --- #336: docker compose supported subcommands rewritten, unsupported skipped ---
 
     #[test]
